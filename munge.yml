@@ -1,0 +1,29 @@
+- name: MUNGE authentication
+  hosts: all
+  become: true
+  tasks:
+    - name: munge is installed
+      ansible.builtin.apt:
+        name: munge
+        state: present
+
+    - name: every host has the cluster's munge key
+      ansible.builtin.copy:
+        src: secrets/munge.key
+        dest: /etc/munge/munge.key
+        owner: munge
+        group: munge
+        mode: "0400"
+      notify: restart munge
+
+    - name: munge is running and starts at boot
+      ansible.builtin.systemd:
+        name: munge
+        state: started
+        enabled: true
+
+  handlers:
+    - name: restart munge
+      ansible.builtin.systemd:
+        name: munge
+        state: restarted
