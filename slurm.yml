@@ -1,0 +1,34 @@
+- name: Slurm
+  hosts: all
+  become: true
+  tasks:
+    - name: Slurm commands and this host's daemon are installed
+      ansible.builtin.apt:
+        name:
+          - slurm-client
+          - "{{ slurm_daemon }}"
+        state: present
+
+    - name: slurm.conf and cgroup.conf are identical on every host
+      ansible.builtin.template:
+        src: "templates/{{ item }}.j2"
+        dest: "/etc/slurm/{{ item }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - slurm.conf
+        - cgroup.conf
+      notify: restart slurm
+
+    - name: this host's Slurm daemon is running and starts at boot
+      ansible.builtin.systemd:
+        name: "{{ slurm_daemon }}"
+        state: started
+        enabled: true
+
+  handlers:
+    - name: restart slurm
+      ansible.builtin.systemd:
+        name: "{{ slurm_daemon }}"
+        state: restarted
