@@ -1,0 +1,38 @@
+- name: NFS server
+  hosts: head
+  become: true
+  vars:
+    nfs_export_path: /shared
+    nfs_clients: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.prefix }}"
+  tasks:
+    - name: nfs-kernel-server is installed
+      ansible.builtin.apt:
+        name: nfs-kernel-server
+        state: present
+
+    - name: /shared exists, owned by zach
+      ansible.builtin.file:
+        path: /shared
+        state: directory
+        owner: zach
+        group: zach
+        mode: "0755"
+
+    - name: /etc/exports lists /shared for the cluster subnet
+      ansible.builtin.template:
+        src: templates/exports.j2
+        dest: /etc/exports
+        owner: root
+        group: root
+        mode: "0644"
+      notify: reload exports
+
+    - name: nfs-server is running and starts at boot
+      ansible.builtin.systemd:
+        name: nfs-server
+        state: started
+        enabled: true
+
+  handlers:
+    - name: reload exports
+      ansible.builtin.command: exportfs -ra
