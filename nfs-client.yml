@@ -1,0 +1,16 @@
+- name: NFS clients
+  hosts: compute
+  become: true
+  tasks:
+    - name: nfs-common is installed
+      ansible.builtin.apt:
+        name: nfs-common
+        state: present
+
+    - name: /shared is mounted from the head
+      ansible.posix.mount:
+        src: ubuntu-vm:/shared
+        path: /shared
+        fstype: nfs
+        opts: defaults,nofail,_netdev
+        state: mounted
