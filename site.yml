@@ -2,4 +2,3 @@
 - import_playbook: nfs-client.yml
 - import_playbook: munge.yml
 - import_playbook: slurm.yml
-- import_playbook: slurm.yml
