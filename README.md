@@ -1,16 +1,16 @@
-# cluster-ansible
+# compute-cluster
 
 A small HPC cluster I built from scratch on Hyper-V: one head node and two compute nodes,
-with shared storage, authentication and a Slurm job scheduler. All of it is configured by
+with shared storage, authentication and Slurm. All of it is configured by
 Ansible from this repo.
 
 ```
                  ┌──────────────── ubuntu-vm (head) ─────────────────┐
-  you ── ssh ──▶ │ Ansible control node · NFS server · slurmctld     │
+  me ── ssh ──▶  │ Ansible control node · NFS server · slurmctld     │
                  └───────────────────────────────────────────────────┘
-                          │ /shared (NFS)      │ munge-signed Slurm messages
+                          │ /shared (NFS)      │
                 ┌─────────┴────────┐  ┌────────┴─────────┐
-                │ node1 (slurmd)   │  │ node2 (slurmd)   │
+                │ node1.           │  │ node2            │
                 │ 2 vCPU · 1.5 GB  │  │ 2 vCPU · 1.5 GB  │
                 └──────────────────┘  └──────────────────┘
 ```
@@ -18,8 +18,7 @@ Ansible from this repo.
 ## Features
 
 - **Nodes from a cloud image.** node1 and node2 are Ubuntu 24.04 cloud images, set up on first
-  boot by cloud-init (hostname, user `zach` with UID 1000, SSH keys). They find each other by
-  name through the Hyper-V Default Switch's DNS.
+  boot by cloud-init (hostname, user, SSH keys). 
 - **Shared storage (NFS).** The head exports `/shared` to the cluster subnet. Every node mounts
   it at the same path, so a job can be submitted on the head, run on a node, and write its
   output where the head can read it.
