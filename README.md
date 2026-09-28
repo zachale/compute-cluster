@@ -32,24 +32,9 @@ Ansible from this repo.
   - the node lines in `slurm.conf` are generated from each node's CPU and memory facts
   - handlers reload exports or restart daemons only when their config actually changes
 
-## Run it
-
-```bash
-mkdir -m 700 -p secrets && mungekey -c -k secrets/munge.key
-ansible-playbook site.yml
-```
-
 | Playbook | What it sets up |
 |---|---|
 | `nfs-server.yml` | NFS server and `/etc/exports` on the head |
 | `nfs-client.yml` | `/shared` mounted on the compute nodes (and in `/etc/fstab`) |
 | `munge.yml` | munge on every host with the shared key |
 | `slurm.yml` | Slurm packages, `slurm.conf` and `cgroup.conf`, and the right daemon per host |
-
-## Try it
-
-```bash
-sinfo                          # 2 idle nodes in the debug partition
-srun -N2 hostname              # one task on each node
-cd /shared/jobs && sbatch hello.sbatch && squeue
-```
